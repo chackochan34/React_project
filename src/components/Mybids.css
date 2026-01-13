@@ -1,7 +1,155 @@
-.bid-history {
+.mybids-page {
+  min-height: 100vh;
+  padding: 90px 8%;
+  background: linear-gradient(135deg, #0f2027, #203a43);
+  color: white;
+}
+
+.mybids-header h2 {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+}
+
+.mybids-header p {
+  opacity: 0.85;
+  margin-bottom: 25px;
+}
+
+/* summary cards */
+.mybids-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.sum-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+.sum-card span {
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.sum-card h3 {
+  margin-top: 10px;
+  font-size: 1.8rem;
+}
+
+.sum-card.green { border-left: 5px solid #28c76f; }
+.sum-card.yellow { border-left: 5px solid #ff9f43; }
+.sum-card.blue { border-left: 5px solid #4aa3ff; }
+
+/* controls */
+.mybids-controls {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.mybids-controls input,
+.mybids-controls select {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+  font-weight: 600;
+}
+
+/* table */
+.mybids-table-wrap {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 12px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+}
+
+.mybids-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mybids-table th {
+  text-align: left;
+  padding: 14px;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.mybids-table td {
+  padding: 14px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.empty {
+  text-align: center;
+  padding: 30px;
+  opacity: 0.85;
+}
+
+.plate {
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.amount {
+  font-weight: 800;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.status.winning {
+  background: rgba(40, 199, 111, 0.2);
+  color: #28c76f;
+}
+
+.status.outbid {
+  background: rgba(255, 159, 67, 0.2);
+  color: #ff9f43;
+}
+
+.status.won {
+  background: rgba(74, 163, 255, 0.2);
+  color: #4aa3ff;
+}
+
+.status.lost {
+  background: rgba(255, 99, 132, 0.2);
+  color: #ff6384;
+}
+
+.row-win {
+  background: rgba(40, 199, 111, 0.08);
+}
+
+.rebid-btn,
+.pay-btn {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  margin-right: 8px;
+}
+
+.rebid-btn {
   background: white;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  color: #111;
+}
+
+.pay-btn {
+  background: linear-gradient(135deg, #1e60c1, #4aa3ff);
+  color: white;
 }

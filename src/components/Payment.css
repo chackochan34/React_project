@@ -1,0 +1,163 @@
+.payment-page {
+  min-height: 100vh;
+  padding: 90px 8%;
+  background: linear-gradient(135deg, #0f2027, #203a43);
+  color: white;
+  display: flex;
+  justify-content: center;
+}
+
+.payment-card {
+  width: 720px;
+  max-width: 100%;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 22px;
+  padding: 30px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+}
+
+.sub {
+  opacity: 0.85;
+  margin-bottom: 18px;
+}
+
+.pay-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.pay-summary div {
+  background: rgba(255,255,255,0.08);
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.pay-summary span {
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.method h4 {
+  margin: 12px 0;
+}
+
+.method-row {
+  display: flex;
+  gap: 10px;
+}
+
+.method-row button {
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.method-row button.active {
+  background: linear-gradient(135deg, #1e60c1, #4aa3ff);
+  color: white;
+}
+
+.method-form {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.method-form input,
+.method-form select {
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+  font-weight: 700;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.hint {
+  opacity: 0.85;
+  font-size: 0.85rem;
+}
+
+/* breakdown */
+.breakdown {
+  margin-top: 18px;
+  background: rgba(255,255,255,0.08);
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.total {
+  border-top: 1px solid rgba(255,255,255,0.15);
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+/* status */
+.pay-status {
+  margin-top: 18px;
+  background: rgba(255,255,255,0.08);
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.pay-status.pending h4 { color: #ff9f43; }
+.pay-status.processing h4 { color: #4aa3ff; }
+.pay-status.success h4 { color: #28c76f; }
+.pay-status.failed h4 { color: #ff6384; }
+
+/* actions */
+.actions {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.actions button {
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.pay {
+  background: linear-gradient(135deg, #1e60c1, #4aa3ff);
+  color: white;
+}
+
+.fail {
+  background: white;
+  color: #111;
+}
+
+.refund {
+  background: rgba(255, 99, 132, 0.2);
+  color: #ff6384;
+}
+
+/* receipt */
+.receipt {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(40, 199, 111, 0.18);
+  border-radius: 16px;
+  color: #d7ffe6;
+  font-weight: 700;
+}

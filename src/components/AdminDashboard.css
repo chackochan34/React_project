@@ -1,0 +1,138 @@
+.admin-page {
+  min-height: 100vh;
+  padding: 90px 8%;
+  background: linear-gradient(135deg, #0f2027, #203a43);
+  color: white;
+}
+
+.admin-header h2 {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+}
+
+.admin-header p {
+  opacity: 0.85;
+  margin-bottom: 25px;
+}
+
+/* analytics */
+.admin-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.a-card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+.a-card span {
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.a-card h3 {
+  margin-top: 10px;
+  font-size: 1.7rem;
+}
+
+/* create auction */
+.admin-create {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+  margin-bottom: 25px;
+}
+
+.create-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.create-grid input,
+.create-grid select {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+  font-weight: 700;
+}
+
+.create-grid button {
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+  background: linear-gradient(135deg, #1e60c1, #4aa3ff);
+  color: white;
+}
+
+.create-grid .export {
+  background: white;
+  color: #111;
+}
+
+/* table */
+.admin-table-wrap {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 14px;
+  opacity: 0.85;
+  font-size: 0.9rem;
+}
+
+.admin-table td {
+  padding: 14px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.plate {
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.status-select {
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+}
+
+.del {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255, 99, 132, 0.22);
+  color: #ff6384;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.note {
+  opacity: 0.85;
+  margin-top: 14px;
+  font-size: 0.9rem;
+}

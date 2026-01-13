@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import platesData from "../data/platesData";
 import "./Home.css";
@@ -7,14 +7,15 @@ function Home() {
   const navigate = useNavigate();
 
   const [plates, setPlates] = useState(platesData);
-  const [search, setSearch] = useState("");
-  const [tab, setTab] = useState("ongoing");
-  const [filter, setFilter] = useState("");
-  const [watchlist, setWatchlist] = useState(
-    JSON.parse(localStorage.getItem("watchlist")) || []
-  );
 
-  // Countdown timer (client-side simulation)
+  // Filters
+  const [tab, setTab] = useState("ongoing");
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [stateFilter, setStateFilter] = useState("");
+  const [digitsFilter, setDigitsFilter] = useState("");
+
+  // ⏳ Countdown (only for ongoing)
   useEffect(() => {
     const timer = setInterval(() => {
       setPlates((prev) =>
@@ -29,72 +30,121 @@ function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  // ✅ Extract State Name from number plate
+  // Example: "KL 07 AB 0001" => "KL"
+  const getStateCode = (plateNumber) => plateNumber.split(" ")[0];
+
+  // ✅ Digits count
+  const getDigits = (plateNumber) => {
+    const lastPart = plateNumber.split(" ").pop();
+    return lastPart.length;
+  };
+
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
     return `${m}m ${s}s`;
   };
 
-  const toggleWatch = (id) => {
-    const updated = watchlist.includes(id)
-      ? watchlist.filter((i) => i !== id)
-      : [...watchlist, id];
+  // ✅ Unique states for dropdown
+  const uniqueStates = useMemo(() => {
+    const codes = new Set(plates.map((p) => getStateCode(p.number)));
+    return Array.from(codes).sort();
+  }, [plates]);
 
-    setWatchlist(updated);
-    localStorage.setItem("watchlist", JSON.stringify(updated));
-  };
+  // ✅ Filtered plates
+  const filteredPlates = useMemo(() => {
+    return plates.filter((p) => {
+      const matchTab = p.status === tab;
+
+      const matchSearch =
+        p.number.toLowerCase().includes(search.toLowerCase());
+
+      const matchType =
+        typeFilter === "" ? true : p.type === typeFilter;
+
+      const matchState =
+        stateFilter === "" ? true : getStateCode(p.number) === stateFilter;
+
+      const matchDigits =
+        digitsFilter === "" ? true : getDigits(p.number) === Number(digitsFilter);
+
+      return matchTab && matchSearch && matchType && matchState && matchDigits;
+    });
+  }, [plates, tab, search, typeFilter, stateFilter, digitsFilter]);
 
   return (
     <div className="home-page">
-      {/* HERO SECTION */}
+      {/* HERO */}
       <section className="hero">
         <h1>Premium Fancy Number Auctions</h1>
-        <p>Bid on exclusive vehicle numbers across India</p>
-
-        <input
-          type="text"
-          placeholder="Search fancy number (0001, 9999, 7777)"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <p>Filter and bid on exclusive vehicle numbers across India</p>
       </section>
 
-      {/* STATUS TABS */}
-      <div className="tabs">
-        {["ongoing", "upcoming", "completed"].map((t) => (
+      {/* FILTER BAR */}
+      <div className="filter-box">
+        <div className="tabs">
+          {["ongoing", "upcoming", "completed"].map((t) => (
+            <button
+              key={t}
+              className={tab === t ? "active" : ""}
+              onClick={() => setTab(t)}
+            >
+              {t.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        <div className="filters">
+          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+            <option value="">Plate Type</option>
+            <option value="VIP">VIP</option>
+            <option value="Fancy">Fancy</option>
+          </select>
+
+          <select value={digitsFilter} onChange={(e) => setDigitsFilter(e.target.value)}>
+            <option value="">Digits</option>
+            <option value="4">4 Digits</option>
+          </select>
+
+          <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value)}>
+            <option value="">State</option>
+            {uniqueStates.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            placeholder="Search plate number..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
           <button
-            key={t}
-            className={tab === t ? "active" : ""}
-            onClick={() => setTab(t)}
+            className="clear-btn"
+            onClick={() => {
+              setSearch("");
+              setTypeFilter("");
+              setDigitsFilter("");
+              setStateFilter("");
+            }}
           >
-            {t.toUpperCase()}
+            Clear
           </button>
-        ))}
+        </div>
       </div>
 
-      {/* FILTER */}
-      <div className="filters">
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="">All Types</option>
-          <option value="VIP">VIP</option>
-          <option value="Fancy">Fancy</option>
-        </select>
-      </div>
-
-      {/* AUCTION GRID */}
+      {/* GRID */}
       <section className="auction-grid">
-        {plates
-          .filter(
-            (p) =>
-              p.status === tab &&
-              p.number.toLowerCase().includes(search.toLowerCase()) &&
-              (filter ? p.type === filter : true)
-          )
-          .map((plate) => (
+        {filteredPlates.length === 0 ? (
+          <p className="empty-msg">No auctions found 🚫</p>
+        ) : (
+          filteredPlates.map((plate) => (
             <div className="auction-card" key={plate.id}>
-              {plate.bids > 200 && (
-                <span className="trending">🔥 Trending</span>
-              )}
+              {plate.bids > 200 && <span className="trending">🔥 Trending</span>}
 
               <span className={`badge ${plate.type.toLowerCase()}`}>
                 {plate.type}
@@ -102,42 +152,34 @@ function Home() {
 
               <div className="plate-box">{plate.number}</div>
 
+              <p className="meta">
+                📍 {getStateCode(plate.number)} • 🔢 {getDigits(plate.number)} digits
+              </p>
+
               <p className="bids">💬 {plate.bids} bids</p>
 
               {plate.status === "ongoing" && (
-                <p className="time">
-                  ⏳ {formatTime(plate.time)}
-                </p>
+                <p className="time">⏳ {formatTime(plate.time)}</p>
               )}
 
               {plate.status === "completed" && (
                 <p className="ended">Auction Closed</p>
               )}
 
-              <h3>₹{plate.price.toLocaleString()}</h3>
+              <h3>₹{plate.price.toLocaleString("en-IN")}</h3>
 
-              <div className="actions">
-                <button
-                  disabled={plate.status !== "ongoing"}
-                  onClick={() =>
-                    navigate(`/bidding/${plate.id}`, { state: plate })
-                  }
-                >
-                  {plate.status === "ongoing"
-                    ? "Start Bidding"
-                    : "View"}
-                </button>
-
-                <span
-                  className="watch"
-                  onClick={() => toggleWatch(plate.id)}
-                  title="Add to watchlist"
-                >
-                  {watchlist.includes(plate.id) ? "⭐" : "☆"}
-                </span>
-              </div>
+              <button
+                className="bid-btn"
+                disabled={plate.status !== "ongoing"}
+                onClick={() =>
+                  navigate(`/bidding/${plate.id}`, { state: plate })
+                }
+              >
+                {plate.status === "ongoing" ? "Start Bidding" : "View"}
+              </button>
             </div>
-          ))}
+          ))
+        )}
       </section>
     </div>
   );
