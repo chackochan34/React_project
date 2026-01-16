@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import platesData from "../data/platesData";
 import "./Home.css";
+import Toast from "./Toast";
 
 function Home() {
   const navigate = useNavigate();
@@ -15,14 +16,23 @@ function Home() {
   const [stateFilter, setStateFilter] = useState("");
   const [digitsFilter, setDigitsFilter] = useState("");
 
-  // ⏳ Countdown (only for ongoing)
+  // ✅ NEW: Sorting feature
+  const [sortBy, setSortBy] = useState("endingSoon");
+
+  // ✅ NEW: Watchlist Feature
+  const [watchlist, setWatchlist] = useState(
+    JSON.parse(localStorage.getItem("watchlist")) || []
+  );
+
+  // ✅ Toast state
+  const [toast, setToast] = useState({ message: "", type: "info" });
+
+  // ⏳ Countdown
   useEffect(() => {
     const timer = setInterval(() => {
       setPlates((prev) =>
         prev.map((p) =>
-          p.status === "ongoing" && p.time > 0
-            ? { ...p, time: p.time - 1 }
-            : p
+          p.status === "ongoing" && p.time > 0 ? { ...p, time: p.time - 1 } : p
         )
       );
     }, 1000);
@@ -30,11 +40,8 @@ function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // ✅ Extract State Name from number plate
-  // Example: "KL 07 AB 0001" => "KL"
   const getStateCode = (plateNumber) => plateNumber.split(" ")[0];
 
-  // ✅ Digits count
   const getDigits = (plateNumber) => {
     const lastPart = plateNumber.split(" ").pop();
     return lastPart.length;
@@ -46,43 +53,68 @@ function Home() {
     return `${m}m ${s}s`;
   };
 
-  // ✅ Unique states for dropdown
   const uniqueStates = useMemo(() => {
     const codes = new Set(plates.map((p) => getStateCode(p.number)));
     return Array.from(codes).sort();
   }, [plates]);
 
-  // ✅ Filtered plates
+  const toggleWatchlist = (id) => {
+    let updated;
+    if (watchlist.includes(id)) {
+      updated = watchlist.filter((x) => x !== id);
+      setToast({ message: "Removed from Watchlist ⭐", type: "info" });
+    } else {
+      updated = [...watchlist, id];
+      setToast({ message: "Added to Watchlist ✅⭐", type: "success" });
+    }
+
+    setWatchlist(updated);
+    localStorage.setItem("watchlist", JSON.stringify(updated));
+
+    setTimeout(() => setToast({ message: "", type: "info" }), 2000);
+  };
+
+  // ✅ Filter + Sort
   const filteredPlates = useMemo(() => {
-    return plates.filter((p) => {
+    let list = plates.filter((p) => {
       const matchTab = p.status === tab;
-
-      const matchSearch =
-        p.number.toLowerCase().includes(search.toLowerCase());
-
-      const matchType =
-        typeFilter === "" ? true : p.type === typeFilter;
-
+      const matchSearch = p.number.toLowerCase().includes(search.toLowerCase());
+      const matchType = typeFilter === "" ? true : p.type === typeFilter;
       const matchState =
         stateFilter === "" ? true : getStateCode(p.number) === stateFilter;
-
       const matchDigits =
         digitsFilter === "" ? true : getDigits(p.number) === Number(digitsFilter);
 
       return matchTab && matchSearch && matchType && matchState && matchDigits;
     });
-  }, [plates, tab, search, typeFilter, stateFilter, digitsFilter]);
+
+    // ✅ Sorting
+    if (sortBy === "endingSoon") {
+      list.sort((a, b) => (a.time || 999999) - (b.time || 999999));
+    } else if (sortBy === "highestBid") {
+      list.sort((a, b) => (b.price || 0) - (a.price || 0));
+    } else if (sortBy === "mostBids") {
+      list.sort((a, b) => (b.bids || 0) - (a.bids || 0));
+    }
+
+    return list;
+  }, [plates, tab, search, typeFilter, stateFilter, digitsFilter, sortBy]);
 
   return (
     <div className="home-page">
-      {/* HERO */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ message: "", type: "info" })}
+      />
+
       <section className="hero">
         <h1>Premium Fancy Number Auctions</h1>
-        <p>Filter and bid on exclusive vehicle numbers across India</p>
+        <p>Search, filter, sort and bid on exclusive number plates</p>
       </section>
 
-      {/* FILTER BAR */}
       <div className="filter-box">
+        {/* Tabs */}
         <div className="tabs">
           {["ongoing", "upcoming", "completed"].map((t) => (
             <button
@@ -95,6 +127,7 @@ function Home() {
           ))}
         </div>
 
+        {/* Filters */}
         <div className="filters">
           <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
             <option value="">Plate Type</option>
@@ -135,6 +168,19 @@ function Home() {
             Clear
           </button>
         </div>
+
+        {/* ✅ Sorting */}
+        <div className="sort-row">
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <option value="endingSoon">Sort: Ending Soon ⏳</option>
+            <option value="highestBid">Sort: Highest Price 💰</option>
+            <option value="mostBids">Sort: Most Bids 🔥</option>
+          </select>
+
+          <div className="watch-count">
+            ⭐ Watchlist: <b>{watchlist.length}</b>
+          </div>
+        </div>
       </div>
 
       {/* GRID */}
@@ -150,6 +196,15 @@ function Home() {
                 {plate.type}
               </span>
 
+              {/* ⭐ Watch */}
+              <button
+                className="watch-btn"
+                onClick={() => toggleWatchlist(plate.id)}
+                title="Add to Watchlist"
+              >
+                {watchlist.includes(plate.id) ? "⭐" : "☆"}
+              </button>
+
               <div className="plate-box">{plate.number}</div>
 
               <p className="meta">
@@ -162,18 +217,14 @@ function Home() {
                 <p className="time">⏳ {formatTime(plate.time)}</p>
               )}
 
-              {plate.status === "completed" && (
-                <p className="ended">Auction Closed</p>
-              )}
+              {plate.status === "completed" && <p className="ended">Auction Closed</p>}
 
               <h3>₹{plate.price.toLocaleString("en-IN")}</h3>
 
               <button
                 className="bid-btn"
                 disabled={plate.status !== "ongoing"}
-                onClick={() =>
-                  navigate(`/bidding/${plate.id}`, { state: plate })
-                }
+                onClick={() => navigate(`/bidding/${plate.id}`, { state: plate })}
               >
                 {plate.status === "ongoing" ? "Start Bidding" : "View"}
               </button>

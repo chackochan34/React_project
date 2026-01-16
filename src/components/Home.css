@@ -208,3 +208,34 @@
   opacity: 0.9;
   font-size: 1.1rem;
 }
+.sort-row {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.sort-row select {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+  font-weight: 800;
+}
+
+.watch-count {
+  color: white;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.watch-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+}

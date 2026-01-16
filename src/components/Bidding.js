@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // ✅ added
-import { isLoggedIn } from "../utils/auth";                   // ✅ added
+import { useLocation, useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../utils/auth";
+import Toast from "./Toast";
 import "./Bidding.css";
 
 const BOT_NAMES = [
@@ -14,7 +15,7 @@ const BOT_NAMES = [
 
 function Bidding() {
   const { state } = useLocation();
-  const navigate = useNavigate(); // ✅ added
+  const navigate = useNavigate();
   const plate = state || null;
 
   const [currentBid, setCurrentBid] = useState(plate ? plate.price : 0);
@@ -24,10 +25,12 @@ function Bidding() {
   const [pulse, setPulse] = useState(false);
   const [topBidder, setTopBidder] = useState("You");
 
-  const audioRef = useRef(null);
+  // ✅ Toast State
+  const [toast, setToast] = useState({ message: "", type: "info" });
+
   const botTimerRef = useRef(null);
 
-  // 🔐 AUTH GUARD (ESSENTIAL)
+  // ✅ Redirect to welcome if not logged in (essential)
   useEffect(() => {
     if (!isLoggedIn()) {
       navigate("/welcome");
@@ -45,12 +48,12 @@ function Bidding() {
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  // 🤖 BOT BIDDING (UNCHANGED)
+  // 🤖 BOT BIDDING LOGIC (unchanged)
   useEffect(() => {
     if (timeLeft <= 0) return;
 
     const startBotBidding = () => {
-      const delay = Math.floor(Math.random() * 5000) + 3000;
+      const delay = Math.floor(Math.random() * 5000) + 3000; // 3–8 sec
 
       botTimerRef.current = setTimeout(() => {
         const botName =
@@ -69,15 +72,20 @@ function Bidding() {
         setTopBidder(botName);
         setHistory((prev) => [botEntry, ...prev]);
 
-        audioRef.current.play();
+        // ✅ Pulse effect
         setPulse(true);
         setTimeout(() => setPulse(false), 600);
+
+        // ✅ Toast: Outbid
+        setToast({ message: "You are outbid! ⚠️", type: "error" });
+        setTimeout(() => setToast({ message: "", type: "info" }), 2000);
 
         startBotBidding();
       }, delay);
     };
 
     startBotBidding();
+
     return () => clearTimeout(botTimerRef.current);
   }, [currentBid, timeLeft]);
 
@@ -85,10 +93,11 @@ function Bidding() {
     return <div className="bidding-page">Invalid Access</div>;
   }
 
-  // 👤 USER BID (UNCHANGED LOGIC)
+  // 👤 USER BID
   const placeBid = () => {
     if (+bidAmount <= currentBid) {
-      alert("Bid must be higher than current bid");
+      setToast({ message: "Bid must be higher than current bid ❌", type: "error" });
+      setTimeout(() => setToast({ message: "", type: "info" }), 2000);
       return;
     }
 
@@ -103,9 +112,13 @@ function Bidding() {
     setHistory([userBid, ...history]);
     setBidAmount("");
 
-    audioRef.current.play();
+    // ✅ Pulse effect
     setPulse(true);
     setTimeout(() => setPulse(false), 600);
+
+    // ✅ Toast: Success
+    setToast({ message: "Bid placed successfully ✅", type: "success" });
+    setTimeout(() => setToast({ message: "", type: "info" }), 2000);
   };
 
   const formatTime = (sec) => {
@@ -116,7 +129,11 @@ function Bidding() {
 
   return (
     <div className="bidding-page">
-      <audio ref={audioRef} src="/sounds/ding.mp3" />
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ message: "", type: "info" })}
+      />
 
       <div className="bidding-container">
         {/* LEFT */}
@@ -127,16 +144,12 @@ function Bidding() {
             <div className={`info-card ${pulse ? "pulse" : ""}`}>
               <span>Current Bid</span>
               <h2>₹{currentBid.toLocaleString()}</h2>
-              <p className="top-bidder">
-                👑 Top Bidder: {topBidder}
-              </p>
+              <p className="top-bidder">👑 Top Bidder: {topBidder}</p>
             </div>
 
             <div className={`info-card timer ${timeLeft < 30 ? "urgent" : ""}`}>
               <span>Time Left</span>
-              <h2>
-                {timeLeft > 0 ? formatTime(timeLeft) : "Ended"}
-              </h2>
+              <h2>{timeLeft > 0 ? formatTime(timeLeft) : "Ended"}</h2>
             </div>
           </div>
         </div>
@@ -146,7 +159,7 @@ function Bidding() {
           <h3>Place Your Bid</h3>
 
           {timeLeft > 0 ? (
-            isLoggedIn() ? (   // ✅ ONLY CHANGE HERE
+            isLoggedIn() ? (
               <>
                 <input
                   type="number"
@@ -155,14 +168,10 @@ function Bidding() {
                   onChange={(e) => setBidAmount(e.target.value)}
                 />
 
-                <button onClick={placeBid}>
-                  Place Bid
-                </button>
+                <button onClick={placeBid}>Place Bid</button>
               </>
             ) : (
-              <div className="login-warning">
-                🔒 Please login to place a bid
-              </div>
+              <div className="login-warning">🔒 Please login to place a bid</div>
             )
           ) : (
             <div className="winner">
@@ -173,13 +182,11 @@ function Bidding() {
             </div>
           )}
 
-          {/* LIVE ACTIVITY (UNCHANGED) */}
+          {/* LIVE ACTIVITY */}
           <div className="history">
             <h4>Live Activity</h4>
 
-            {history.length === 0 && (
-              <p className="empty">No bids yet</p>
-            )}
+            {history.length === 0 && <p className="empty">No bids yet</p>}
 
             {history.map((b, i) => (
               <div key={i} className="history-item slide-in">
