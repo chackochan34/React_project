@@ -8,16 +8,40 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    // ✅ mock register success
-    loginUser();
-    alert("Registration successful ✅");
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
 
-    // ✅ redirect to home
-    navigate("/home");
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Registration failed');
+        setLoading(false);
+        return;
+      }
+
+      // Store token and user
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      loginUser();
+
+      setLoading(false);
+      navigate("/home");
+    } catch (err) {
+      setError('Connection error. Make sure backend is running.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,8 +60,8 @@ function Register() {
           />
 
           <input
-            type="text"
-            placeholder="Email / Phone"
+            type="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -51,7 +75,11 @@ function Register() {
             required
           />
 
-          <button type="submit">Register</button>
+          {error && <p className="error-message">{error}</p>}
+
+          <button type="submit" disabled={loading}>
+            {loading ? 'Registering...' : 'Register'}
+          </button>
         </form>
 
         <p className="auth-footer">

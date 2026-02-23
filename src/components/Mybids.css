@@ -1,49 +1,64 @@
 .mybids-page {
   min-height: 100vh;
-  padding: 90px 8%;
-  background: linear-gradient(135deg, #0f2027, #203a43);
-  color: white;
+  padding: 60px 6%;
+  background: #ffffff;
+  color: #1a1a1a;
 }
 
 .mybids-header h2 {
-  font-size: 2.2rem;
+  font-size: 2rem;
   margin-bottom: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
 }
 
 .mybids-header p {
-  opacity: 0.85;
+  opacity: 0.7;
   margin-bottom: 25px;
+  color: #666;
 }
 
 /* summary cards */
 .mybids-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 18px;
-  margin-bottom: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .sum-card {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(14px);
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+  background: #ffffff;
+  border-radius: 0;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  border-left: 3px solid #000;
 }
 
 .sum-card span {
-  opacity: 0.8;
-  font-size: 0.9rem;
+  opacity: 0.7;
+  font-size: 0.85rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .sum-card h3 {
   margin-top: 10px;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #000;
 }
 
-.sum-card.green { border-left: 5px solid #28c76f; }
-.sum-card.yellow { border-left: 5px solid #ff9f43; }
-.sum-card.blue { border-left: 5px solid #4aa3ff; }
+.sum-card.green { border-left-color: #000; }
+.sum-card.green h3 { color: #000; }
+
+.sum-card.yellow { border-left-color: #000; }
+.sum-card.yellow h3 { color: #000; }
+
+.sum-card.blue { border-left-color: #000; }
+.sum-card.blue h3 { color: #000; }
 
 /* controls */
 .mybids-controls {

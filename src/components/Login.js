@@ -7,16 +7,41 @@ function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    // ✅ mock login success
-    loginUser();
-    alert("Login successful ✅");
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-    // ✅ redirect to home
-    navigate("/home");
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Login failed');
+        setLoading(false);
+        return;
+      }
+
+      // Store token and user
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      loginUser();
+
+      setLoading(false);
+      // Force reload to trigger navbar visibility
+      window.location.href = "/home";
+    } catch (err) {
+      setError('Connection error. Make sure backend is running.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,8 +52,8 @@ function Login() {
 
         <form onSubmit={handleLogin}>
           <input
-            type="text"
-            placeholder="Email / Phone"
+            type="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -42,7 +67,11 @@ function Login() {
             required
           />
 
-          <button type="submit">Login</button>
+          {error && <p className="error-message">{error}</p>}
+
+          <button type="submit" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
 
         <p className="auth-footer">
