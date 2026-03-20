@@ -27,10 +27,29 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { number, type, currentPrice, status, description } = req.body;
+    // Basic request validation
+    const missing = [];
+    if (!number) missing.push('number');
+    if (!type) missing.push('type');
+    if (currentPrice === undefined || currentPrice === null) missing.push('currentPrice');
+
+    if (missing.length > 0) {
+      return res.status(400).json({ error: 'Missing required fields', missing });
+    }
+
     const plate = new Plate({ number, type, currentPrice, status, description });
     await plate.save();
     res.status(201).json({ message: 'Plate created', plate });
   } catch (err) {
+    // Mongoose validation errors -> send 400 with details
+    if (err && err.name === 'ValidationError') {
+      const details = Object.keys(err.errors).reduce((acc, key) => {
+        acc[key] = err.errors[key].message;
+        return acc;
+      }, {});
+      return res.status(400).json({ error: 'Plate validation failed', details });
+    }
+
     res.status(500).json({ error: err.message });
   }
 });

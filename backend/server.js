@@ -1,47 +1,53 @@
-const express = require('express');
-const mongoose = require('mongoose');
-require('dotenv').config();
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+
+const authRoutes = require("./routes/authRoutes");
+const auctionRoutes = require("./routes/auctionRoutes");
+const bidRoutes = require("./routes/bidRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const userRoutes = require("./routes/userRoutes");
+const plateRoutesCompat = require("./routes/plateRoutesCompat");
+
+dotenv.config();
+connectDB();
 
 const app = express();
-app.use(cors());
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      const isLocalhost = !!origin && /^https?:\/\/localhost(?::\d+)?$/.test(origin);
+      const allowedOrigins = new Set([process.env.CLIENT_URL || "http://localhost:3000"]);
+      if (!origin || isLocalhost || allowedOrigins.has(origin)) return callback(null, true);
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 
-// Routes
-const authRoutes = require('./routes/authRoutes');
-const plateRoutes = require('./routes/plateRoutes');
-const bidRoutes = require('./routes/bidRoutes');
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.log('❌ MongoDB connection error:', err));
-
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/plates', plateRoutes);
-app.use('/api/bids', bidRoutes);
-
-app.get('/api', (req, res) => {
-  res.json({ message: 'Auction System API - Ready!' });
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    message: "Premium Fancy Number Auction API is live",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// DB status endpoint for health checks / Thunder Client
-app.get('/api/db-status', (req, res) => {
-  const states = {
-    0: 'disconnected',
-    1: 'connected',
-    2: 'connecting',
-    3: 'disconnecting',
-  };
-  const readyState = mongoose.connection.readyState;
-  res.json({ readyState, status: states[readyState] || 'unknown' });
-});
+app.use("/api/auth", authRoutes);
+app.use("/api/auctions", auctionRoutes);
+app.use("/api/plates", plateRoutesCompat);
+app.use("/api/bids", bidRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/users", userRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-  console.log(`📝 Endpoints: POST /api/auth/register, POST /api/auth/login, GET /api/plates, POST /api/bids`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

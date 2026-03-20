@@ -1,18 +1,25 @@
 {
-  "name": "auctionsystem-backend",
+  "name": "premium-fancy-number-auction-backend",
   "version": "1.0.0",
   "private": true,
   "main": "server.js",
   "scripts": {
+    "dev": "nodemon server.js",
     "start": "node server.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "seed:admin": "node seedAdmin.js",
+    "seed:states": "node seedStateNumbers.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.18.2",
+    "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }

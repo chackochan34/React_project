@@ -1,100 +1,70 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { Navbar } from "./components/layout/Navbar";
+import { Footer } from "./components/layout/Footer";
+import { ProtectedRoute } from "./components/routing/ProtectedRoute";
+import { AdminRoute } from "./components/routing/AdminRoute";
+import { ToastContainer } from "./components/common/Toast";
+import { WelcomePage } from "./pages/WelcomePage";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { HomePage } from "./pages/HomePage";
+import { AboutPage } from "./pages/AboutPage";
+import { ContactPage } from "./pages/ContactPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { TermsPage } from "./pages/TermsPage";
+import { LiveAuctionsPage } from "./pages/LiveAuctionsPage";
+import { AuctionDetailsPage } from "./pages/AuctionDetailsPage";
+import { MyBidsPage } from "./pages/MyBidsPage";
+import { WatchlistPage } from "./pages/WatchlistPage";
+import { PaymentPage } from "./pages/PaymentPage";
+import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+import { ProfilePage } from "./pages/ProfilePage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { useAuth } from "./context/AuthContext";
 
-import Welcome from "./components/Welcome";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import AdminLogin from "./components/AdminLogin";
-
-import Navbar from "./components/Navbar";
-
-import Home from "./components/Home";
-import Bidding from "./components/Bidding";
-import MyBids from "./components/Mybids";
-import Payment from "./components/Payment";
-import AdminDashboard from "./components/AdminDashboard";
-
-import ProtectedRoute from "./utils/ProtectedRoute";
-import AdminProtectedRoute from "./utils/AdminProtectedRoute";
-import { isLoggedIn } from "./utils/auth";
+const AnimatedPage = ({ children }) => (
+  <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+    {children}
+  </motion.div>
+);
 
 function App() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <>
-      {/* ✅ Navbar only for normal users after login */}
-      {isLoggedIn() && <Navbar />}
+      <Navbar />
+      <AnimatePresence mode="wait">
+        <Routes>
+          <Route path="/" element={<Navigate to={isAuthenticated ? "/home" : "/welcome"} replace />} />
+          <Route path="/welcome" element={<AnimatedPage><WelcomePage /></AnimatedPage>} />
+          <Route path="/login" element={<AnimatedPage><LoginPage /></AnimatedPage>} />
+          <Route path="/register" element={<AnimatedPage><RegisterPage /></AnimatedPage>} />
+          <Route path="/about" element={<AnimatedPage><AboutPage /></AnimatedPage>} />
+          <Route path="/contact" element={<AnimatedPage><ContactPage /></AnimatedPage>} />
+          <Route path="/privacy" element={<AnimatedPage><PrivacyPage /></AnimatedPage>} />
+          <Route path="/terms" element={<AnimatedPage><TermsPage /></AnimatedPage>} />
 
-      <Routes>
-        {/* ✅ Default route */}
-        <Route
-          path="/"
-          element={
-            isLoggedIn() ? (
-              <Navigate to="/home" replace />
-            ) : (
-              <Navigate to="/welcome" replace />
-            )
-          }
-        />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/home" element={<AnimatedPage><HomePage /></AnimatedPage>} />
+            <Route path="/live-auctions" element={<AnimatedPage><LiveAuctionsPage /></AnimatedPage>} />
+            <Route path="/auctions/:id" element={<AnimatedPage><AuctionDetailsPage /></AnimatedPage>} />
+            <Route path="/my-bids" element={<AnimatedPage><MyBidsPage /></AnimatedPage>} />
+            <Route path="/watchlist" element={<AnimatedPage><WatchlistPage /></AnimatedPage>} />
+            <Route path="/payments" element={<AnimatedPage><PaymentPage /></AnimatedPage>} />
+            <Route path="/profile" element={<AnimatedPage><ProfilePage /></AnimatedPage>} />
+          </Route>
 
-        {/* ✅ Public Routes */}
-        <Route path="/welcome" element={<Welcome />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AnimatedPage><AdminDashboardPage /></AnimatedPage>} />
+          </Route>
 
-        {/* ✅ Admin Login Separate */}
-        <Route path="/admin-login" element={<AdminLogin />} />
-
-        {/* ✅ Protected User Routes */}
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/bidding/:id"
-          element={
-            <ProtectedRoute>
-              <Bidding />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/mybids"
-          element={
-            <ProtectedRoute>
-              <MyBids />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/payment"
-          element={
-            <ProtectedRoute>
-              <Payment />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ✅ Protected Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <AdminProtectedRoute>
-              <AdminDashboard />
-            </AdminProtectedRoute>
-          }
-        />
-
-        {/* ✅ Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </AnimatePresence>
+      <Footer />
+      <ToastContainer />
     </>
   );
 }
